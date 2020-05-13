@@ -2,6 +2,7 @@ import React,{useState,useEffect} from 'react';
 import { TextInput,Button,Card,Title} from 'react-native-paper';
 import {View,Text, FlatList,Image} from 'react-native'
 import Header from './Header'
+import AsyncStorage from '@react-native-community/async-storage';
 
 const Home = (props)=>{
 
@@ -15,10 +16,13 @@ const Home = (props)=>{
     useEffect(() => {
         getWeather()
     }, [])
-    const getWeather = ()=>{
-        let MyCity;
-        const {city} = props.route.params
-        MyCity = city
+    const getWeather = async ()=>{
+        let MyCity = await AsyncStorage.getItem("newCity")
+        if(!MyCity){
+            const {city} = props.route.params
+            MyCity = city
+        }
+        
 
         //api keys dapat diganti
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${MyCity}&APPID=4d617fe8a20c7046d1ba5006747bfe32&units=metric`)
@@ -31,6 +35,9 @@ const Home = (props)=>{
                 desc:results.weather[0].description,
                 icon:results.weather[0].icon,
             })
+        })
+        .catch(err=>{
+            alert(err.message)
         })
     }
 
